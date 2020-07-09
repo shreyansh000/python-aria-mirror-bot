@@ -7,7 +7,7 @@ from bot.helper.ext_utils import fs_utils, bot_utils
 from bot.helper.ext_utils.bot_utils import setInterval
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException, NotSupportedExtractionArchive
 from bot.helper.mirror_utils.download_utils.aria2_download import AriaDownloadHelper
-from bot.helper.mirror_utils.download_utils.mega_downloader import MegaDownloadHelper
+# from bot.helper.mirror_utils.download_utils.mega_downloader import MegaDownloadHelper
 from bot.helper.mirror_utils.download_utils.direct_link_generator import direct_link_generator
 from bot.helper.mirror_utils.download_utils.telegram_downloader import TelegramDownloadHelper
 from bot.helper.mirror_utils.status_utils import listeners
