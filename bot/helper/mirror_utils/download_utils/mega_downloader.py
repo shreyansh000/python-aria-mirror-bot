@@ -1,6 +1,6 @@
 from bot import LOGGER, MEGA_API_KEY, download_dict_lock, download_dict, MEGA_EMAIL_ID, MEGA_PASSWORD
 import threading
-from mega import (MegaApi, MegaListener, MegaRequest, MegaTransfer, MegaError)
+# from mega import (MegaApi, MegaListener, MegaRequest, MegaTransfer, MegaError)
 from bot.helper.telegram_helper.message_utils import update_all_messages
 import os
 from bot.helper.mirror_utils.status_utils.mega_download_status import MegaDownloadStatus
@@ -115,33 +115,3 @@ class AsyncExecutor:
         self.continue_event.clear()
         function(*args)
         self.continue_event.wait()
-
-
-class MegaDownloadHelper:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def add_download(mega_link: str, path: str, listener):
-        if MEGA_API_KEY is None:
-            raise MegaDownloaderException('Mega API KEY not provided! Cannot mirror mega links')
-        executor = AsyncExecutor()
-        api = MegaApi(MEGA_API_KEY, None, None, 'telegram-mirror-bot')
-        mega_listener = MegaAppListener(executor.continue_event, listener)
-        os.makedirs(path)
-        api.addListener(mega_listener)
-        if MEGA_EMAIL_ID is not None and MEGA_PASSWORD is not None:
-            executor.do(api.login, (MEGA_EMAIL_ID, MEGA_PASSWORD))
-        executor.do(api.getPublicNode, (mega_link,))
-        node = mega_listener.node
-        if node is None:
-            executor.do(api.loginToFolder, (mega_link,))
-            node = mega_listener.node
-        if mega_listener.error is not None:
-            return listener.onDownloadError(str(mega_listener.error))
-        gid = ''.join(random.SystemRandom().choices(string.ascii_letters + string.digits, k=8))
-        mega_listener.setValues(node.getName(), api.getSize(node), gid)
-        with download_dict_lock:
-            download_dict[listener.uid] = MegaDownloadStatus(mega_listener, listener)
-        threading.Thread(target=executor.do, args=(api.startDownload, (node, path))).start()
-        update_all_messages()
